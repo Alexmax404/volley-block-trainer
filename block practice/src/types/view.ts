@@ -1,0 +1,1 @@
+export type AppView = 'menu' | 'settings' | 'training';
