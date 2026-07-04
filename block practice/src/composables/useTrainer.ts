@@ -1,12 +1,10 @@
 import { onUnmounted, readonly, ref } from 'vue';
 import type { Side, TrainerState } from '../types/trainer';
+import { useLocalStorage } from './useLocalStorage';
 
 export interface TrainerConfig {
-  /** Tiempo mínimo en estado neutro antes del siguiente estímulo (ms) */
   minDelay: number;
-  /** Tiempo máximo en estado neutro antes del siguiente estímulo (ms) */
   maxDelay: number;
-  /** Duración del estímulo activo (ms) */
   stimulusDuration: number;
 }
 
@@ -16,8 +14,19 @@ const DEFAULT_CONFIG: TrainerConfig = {
   stimulusDuration: 600,
 };
 
+const STORAGE_KEY = 'volley-block-trainer:config';
+
+// Función pura, no depende de ningún estado del composable:
+// se define en el ámbito del módulo para no recrearla en cada llamada a useTrainer().
+function randomSide(): Side {
+  return Math.random() < 0.5 ? 'left' : 'right';
+}
+
 export function useTrainer(initialConfig: Partial<TrainerConfig> = {}) {
-  const config = ref<TrainerConfig>({ ...DEFAULT_CONFIG, ...initialConfig });
+  const config = useLocalStorage<TrainerConfig>(STORAGE_KEY, {
+    ...DEFAULT_CONFIG,
+    ...initialConfig,
+  });
 
   const isRunning = ref(false);
   const activeSide = ref<TrainerState>(null);
@@ -31,10 +40,6 @@ export function useTrainer(initialConfig: Partial<TrainerConfig> = {}) {
     }
   }
 
-  function randomSide(): Side {
-    return Math.random() < 0.5 ? 'left' : 'right';
-  }
-
   function randomDelay(): number {
     const { minDelay, maxDelay } = config.value;
     return Math.floor(Math.random() * (maxDelay - minDelay + 1)) + minDelay;
@@ -42,7 +47,7 @@ export function useTrainer(initialConfig: Partial<TrainerConfig> = {}) {
 
   function scheduleNextStimulus(): void {
     if (!isRunning.value) return;
-    timeoutId = window.setTimeout(triggerStimulus, randomDelay());
+    timeoutId = globalThis.setTimeout(triggerStimulus, randomDelay());
   }
 
   function triggerStimulus(): void {
@@ -50,8 +55,8 @@ export function useTrainer(initialConfig: Partial<TrainerConfig> = {}) {
 
     activeSide.value = randomSide();
 
-    timeoutId = window.setTimeout(() => {
-      activeSide.value = null; // vuelve a neutro antes de programar el siguiente
+    timeoutId = globalThis.setTimeout(() => {
+      activeSide.value = null;
       scheduleNextStimulus();
     }, config.value.stimulusDuration);
   }
