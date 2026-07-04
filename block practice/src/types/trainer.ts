@@ -1,3 +1,6 @@
 export type Side = 'left' | 'right';
 
-export type TrainerState = Side | null; // null = estado neutro
+// El estímulo puede ser un solo lado o, si está habilitado, ambos a la vez
+export type Stimulus = Side | 'both';
+
+export type TrainerState = Stimulus | null; // null = estado neutro

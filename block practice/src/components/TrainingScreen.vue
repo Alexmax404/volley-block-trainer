@@ -12,12 +12,12 @@ defineProps<Props>();
   <div class="training-screen">
     <div
       class="panel panel--left"
-      :class="{ 'panel--active': activeSide === 'left' }"
+      :class="{ 'panel--active': activeSide === 'left' || activeSide === 'both' }"
       aria-hidden="true"
     />
     <div
       class="panel panel--right"
-      :class="{ 'panel--active': activeSide === 'right' }"
+      :class="{ 'panel--active': activeSide === 'right' || activeSide === 'both' }"
       aria-hidden="true"
     />
   </div>

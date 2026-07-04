@@ -13,9 +13,9 @@ const emit = defineEmits<{
   back: [];
 }>();
 
-// La UI trabaja en segundos por legibilidad; la fuente de la verdad interna sigue en ms.
 const minDelaySeconds = ref(props.config.minDelay / 1000);
 const maxDelaySeconds = ref(props.config.maxDelay / 1000);
+const allowBothSides = ref(props.config.allowBothSides);
 
 const isValid = computed(
   () =>
@@ -31,6 +31,7 @@ function handleSave(): void {
     ...props.config,
     minDelay: Math.round(minDelaySeconds.value * 1000),
     maxDelay: Math.round(maxDelaySeconds.value * 1000),
+    allowBothSides: allowBothSides.value,
   });
 }
 </script>
@@ -59,6 +60,11 @@ function handleSave(): void {
         step="0.1"
         class="settings-screen__input"
       />
+    </label>
+
+    <label class="settings-screen__checkbox">
+      <input v-model="allowBothSides" type="checkbox" />
+      Habilitar bloqueo central
     </label>
 
     <p v-if="!isValid" class="settings-screen__error">
@@ -113,6 +119,15 @@ function handleSave(): void {
   font-size: 1rem;
   border: 1px solid #cccccc;
   border-radius: 6px;
+}
+
+.settings-screen__checkbox {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  width: min(280px, 80vw);
+  font-size: 0.9rem;
+  cursor: pointer;
 }
 
 .settings-screen__error {
